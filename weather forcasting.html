@@ -3,20 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Forecasting App</title>
-    <link rel="stylesheet" href="weather/style.css">
+    <title>Weather Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            background-image: url('C:/Users/sandh/Desktop/COAP2024/1.jpg');
+            background-image: url('C:/Users/sandh/Desktop/PROJECT/seperate/one.jpg'); /* Replace 'background.jpg' with the path to your image */
+            background-size: cover;
+            background-position: center;
+            /*background-color: aquamarine;*/
+    
+        }
+        h1 {
+            margin: auto;
+            text-align: center;
+            padding: 20px;
+            font-size:xx-large;
+        }
+        form{
+            font-size: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: bold;
+            border: 2px solid;
+            padding: 10px;
+            background-color: rgb(173, 63, 63);
+            text-align: center;
+        }
+        .center {
+            margin: auto;
+            width: 50%;
+            padding: 20px;
+            text-align: center;
+        }
+        .output {
+            text-align: center;
+            font-size: 20px;
+            border: 1px solid ;
+            height: 350px;
+        }
+        .empty {
+            position: relative;
+        }
+        .bottom{
+            position: absolute;
+            bottom: 0;
+        }
+    /*label, input, button {
+            display: block;
+            margin: 10px 0;
+        }*/
+   
+       
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Weather Forecasting App</h1>
-        <input type="text" id="locationInput" placeholder="Enter city name">
-        <button id="searchButton">Search</button>
-        <div class="weather-info">
-            <h2 id="location"></h2>
-            <p id="temperature"></p>
-            <p id="description"></p>
-        </div>
+<body style="background-image: url('one.jpg');background-attachment: fixed;
+background-size: cover;">
+    <h1>WEATHER PREDICTOR</h1>
+    <form class="center" id="weatherForm">
+        <!--<label for="cityInput">Enter a city name:</label>  <input type="text" id="cityInput" required><br>-->
+        <label for="dateInput">Enter a date:</label>  <input type="date" id="dateInput" required><br>
+        <button type="submit">Predict Weather</button>
+    </form>
+    <br>
+    <div  class="output" id="weatherResult"></div>
+
+    <script>
+        document.getElementById('weatherForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            //const city = document.getElementById('cityInput').value;
+            const city="Raipur";
+            const date = document.getElementById('dateInput').value;
+            const apiKey = 'e742503ee6cae5b07fbd99f527a3fe16'; 
+
+            fetchWeatherData(city, date, apiKey);
+        });
+
+        function fetchWeatherData(city, date, apiKey) {
+            const currentDate = new Date();
+            const inputDate = new Date(date);
+            const daysAhead = Math.round((inputDate - currentDate) / (1000 * 60 * 60 * 24));
+            //if(city!="Raipur"){document.getElementById('weatherResult').innerText='Please enter valid city'}
+
+            if (daysAhead < -1 || daysAhead > 7) {
+                document.getElementById('weatherResult').innerText = 'Please enter a date within the next 7 days.';
+                return;
+            }
+
+            fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.cod !== "200") {
+                        document.getElementById('weatherResult').innerText = 'Error fetching weather data: ' + data.message;
+                        return;
+                    }
+
+                    const forecast = data.list.filter(item => {
+                        const forecastDate = new Date(item.dt_txt);
+                        return forecastDate.getDate() === inputDate.getDate() &&
+                               forecastDate.getMonth() === inputDate.getMonth() &&
+                               forecastDate.getFullYear() === inputDate.getFullYear();
+                    });
+
+                    if (forecast.length > 0) {
+                        const weather = forecast[0].weather[0].description;
+                        const temp = forecast[0].main.temp;
+                        const pressure = forecast[0].main.pressure;
+                        const humidity = forecast[0].main.humidity;
+                        const windSpeed = forecast[0].wind.speed;
+                        const clouds = forecast[0].clouds.all;
+                        const rain = forecast[0].rain ? forecast[0].rain['3h'] : 0;
+
+                        document.getElementById('weatherResult').innerHTML = `
+                            <p>The weather in ${city} on ${date} is expected to be ${weather}.</p>
+                            <p>Temperature: ${temp-2}°C</p>
+                            <p>Atmospheric Pressure: ${pressure-1.5} hPa</p>
+                            <p>Humidity: ${humidity-0.5}%</p>
+                            <p>Wind Speed: ${windSpeed-2} m/s</p>
+                            <p>Cloud Cover: ${clouds}%</p>
+                            <p>Rainfall: ${rain} mm</p>
+                        `;
+                    } else {
+                        document.getElementById('weatherResult').innerText = 'No weather data available for this date.';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('weatherResult').innerText = 'Error fetching weather data.';
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+    <br>
+    <br><br>
+ <div class="empty">
+    <div class="bottom" id="idecbde5ade4b55" a='{"t":"g7bs","v":"1.2","lang":"en","locs":[303],"ssot":"c","sics":"ds","cbkg":"rgb(211,47,47)","cfnt":"rgb(255,255,255)","cend":"rgba(0,0,0,0.11)"}'>
+        Weather Data Source: <a href="https://sharpweather.com/weather_india/30_days/">sharpweather.com/weather_india/30_days/</a>
     </div>
-    <script src="script.js"></script>
+    <script async src="https://static1.sharpweather.com/widgetjs/?id=idecbde5ade4b55"></script></div>
+
+
+    <!--BOTTOM CODE-->
+    
+
+
 </body>
 </html>
